@@ -28,6 +28,8 @@ function World:initialize(size, ratio)
   self.squrtchunks = math.sqrt(self.numchunks)
   self.chunkheight = self.chunksize*tileheight
   self.chunkwidth = self.chunksize*tilewidth
+--короч, тут все просто, по гайдику, проставляются координаты чанками как будто это тайлы размером self.chunksize*self.chunksize тайлов
+  
   for i = 1, self.squrtchunks do
     for j = 1, self.squrtchunks do
       --print((j-1)*self.chunkheight+(i-1)*self.chunkheight .. ':' .. ((j-1)*self.chunkheight-(i-1)*self.chunkheight)/2)
@@ -36,21 +38,25 @@ function World:initialize(size, ratio)
   end
 end
 
+--типа какому тайлу какая картинка принадлежит на отрисовку. эту хуиту нужно поменять, сделать отдельный класс Tile скорее всего.
 function World:NewTile(num, tile)
   tile_decode[num] = tile
 end
 
+--типа заполняет чанк говном пришедшим с сервера вроде 10010101001110 где 1 - трава а 0 - говно
 function World:FillChunk(datastring,chunknum)
   self.chunks[chunknum]:Fill(datastring)
   print('new chunk N ' .. chunknum .. ' = ' .. datastring)
 end
 
+--типа по строке из предыдущей функции заполняет одномерный МАССИВ С ТАЙЛАМИ НАХУЙ ЕПТА. это скоро поменяю нахуй
 function WorldChunk:Fill(datastring)
   for i = 1, self.size do
       self.tiles[#self.tiles+1] = string.sub(datastring,i,i)
   end
 end
 
+--вот тут красивенько отрисовывает тайлы внутри собственно чанка
 function WorldChunk:Draw()
   for i = 1, self.size do
     for j = 1, self.size do
@@ -59,6 +65,7 @@ function WorldChunk:Draw()
   end
 end
 
+--тут по дибильной нумерации рисуются все чанки подряд в данном мире(блоке чанков)
 function World:Draw()
   local k = 0
   for i = 1, self.squrtchunks do
@@ -68,7 +75,6 @@ function World:Draw()
     end
   end
 end
-
 --[[i = 1 j = 1 ; x = 1
 i = 1 j = 2 ; x = 2
 i = 1 j = 3 ; x = 4 
