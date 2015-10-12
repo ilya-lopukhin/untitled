@@ -108,7 +108,7 @@ local Server = NetTest:addState('Server')
     if(pheader == '004') then
       genWorld()
       print(client_name[client_id[ip]] .. " required a server update! New world size = " .. worldsize)
-      server:send('006' .. worldsize .. world)
+      server:send('006' .. chunksize .. chunk)
       server:send('004' .. '10000' .. 'WORLD MAP RECOMBINATING!')
     end
 

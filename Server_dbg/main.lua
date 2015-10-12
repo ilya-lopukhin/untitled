@@ -9,7 +9,6 @@ NetTest = class('NetTest'):include(Stateful)
 require("menu")
 require("server")
 require("WorldHandling")
-genWorld()
 
 function clearLoveCallbacks()
   love.draw = nil
