@@ -1,3 +1,7 @@
+--NEED TO REWORK COMPLETELY
+
+--[[
+
 --World handling module
 
 local tilewidth  = 64
@@ -75,3 +79,5 @@ function World:Draw()
     end
   end
 end
+
+]]--

@@ -12,23 +12,8 @@ function Game:enterState()
   
   cam = Camera(love.window:getWidth()/2,love.window:getHeight()/2)
   
---------------------GUI------------------
+--------------------GUI-------------------
   chatbox = Block:new(0,0,0,love.window.getWidth(0)/8,200)
------------------------------------------
-
-  function round(x)
-    if x%math.floor(x) > 0.5 then
-      return math.ceil(x)
-    else
-      return math.floor(x)
-    end
-  end    
-  function toIso(x,y)
-    return x-y,(x+y)/2
-  end
-  function toCartesian(isox,isoy)
-    return (2*isoy+isox)/2,(2*isoy-isox)/2
-  end
 ------------------------------------------
    function love.update(dt)
      client:update(dt)

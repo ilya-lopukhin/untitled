@@ -24,14 +24,14 @@ local Server = NetTest:addState('Server')
   
   function onReceive(data, ip, port)
     
-    pheader = string.sub(data,1,3)
-    data = string.sub(data,4)
+    local pheader = string.sub(data,1,3)
+    local data = string.sub(data,4)
     
     if(pheader == '000') then
       print('someone authorizing with ' .. data .. ' token')
-      dot = string.find(data,'|')
-      authlogin = string.sub(data,1,dot-1)
-      authpass  = string.sub(data,dot+1)
+      sep = string.find(data,'|')
+      authlogin = string.sub(data,1,sep-1)
+      authpass  = string.sub(data,sep+1)
       conn = env:connect('LUADB', 'root', 'Kolokolq11')
       query = conn:execute('SELECT `Login`, `Pass` FROM `Users` WHERE `Login` = "' .. authlogin .. '" AND `Pass` = "' .. authpass .. '" ')
       row = query:fetch({},'a')
@@ -82,9 +82,9 @@ local Server = NetTest:addState('Server')
     end
   
     if(pheader == '002' and fail == nil) then
-      dot = string.find(data,'|')
-      newlogin = '"' .. string.sub(data,1,dot-1) .. '"'
-      newpass = '"' .. string.sub(data,dot+1) .. '"'
+      sep = string.find(data,'|')
+      newlogin = '"' .. string.sub(data,1,sep-1) .. '"'
+      newpass = '"' .. string.sub(data,sep+1) .. '"'
       conn = env:connect('LUADB', 'root', 'Kolokolq11')
       query = conn:execute('INSERT INTO Users VALUES(' .. newlogin .. ',' .. newpass ..');')
       conn:close()

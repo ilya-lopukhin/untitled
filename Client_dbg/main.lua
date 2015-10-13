@@ -46,7 +46,22 @@ love.graphics.setFont(mainfont);
 function love.textinput(text)
   input = input .. text
 end
-  
+
+function round(x)
+  if x%math.floor(x) > 0.5 then
+    return math.ceil(x)
+  else
+    return math.floor(x)
+  end
+end
+
+function toIso(x,y)
+  return x-y,(x+y)/2
+end
+
+function toCartesian(isox,isoy)
+  return (2*isoy+isox)/2,(2*isoy-isox)/2
+end
   
 function clearLoveCallbacks()
   love.draw = nil
