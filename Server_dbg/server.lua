@@ -42,7 +42,7 @@ local Server = NetTest:addState('Server')
         --remember new auth's login
        client_name[client_id[ip]] = authlogin
         --send world to new auth
-        server:send('006' .. worldsize .. world,ip)
+        MainWorld:sendChunk(1,ip)
         --send all data about existing players to new auth
        for i = 1,#client_id do
          if client_id[i] ~= nil then
@@ -105,12 +105,6 @@ local Server = NetTest:addState('Server')
         print('WARNING client_id[' .. ip .. '] is nil')
       end
     end 
-    if(pheader == '004') then
-      genWorld()
-      print(client_name[client_id[ip]] .. " required a server update! New world size = " .. worldsize)
-      server:send('006' .. chunksize .. chunk)
-      server:send('004' .. '10000' .. 'WORLD MAP RECOMBINATING!')
-    end
 
         
       message = nil
@@ -132,12 +126,6 @@ local Server = NetTest:addState('Server')
   function love.update(dt)
     time = time + 1
     server:update(dt)
-    if time == 100 and genworld then
-      genWorld()
-      server:send('006' .. worldsize .. world)
-      time = 0
-      genworld = false
-    end
   end
   function love.draw()
   end

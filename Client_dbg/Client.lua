@@ -1,7 +1,7 @@
 
 
 function onReceive(data)
-
+      
      local pheader = string.sub(data,1,3)
      local data = string.sub(data,4)
      print('RECIEVED ' .. data .. ' WITH HEADER ' .. pheader .. ' FROM SERVER')
@@ -19,7 +19,7 @@ function onReceive(data)
       end
       if(pheader == '003') then
         print('auth passed')
-        netTest:gotoState('Client')
+        Lamp:gotoState('Game')
       end
       if(pheader == '004') then
         local sender = string.sub(data,1,5)
@@ -28,23 +28,18 @@ function onReceive(data)
         if sender == '10000' then
           chat[#chat+1] = "System message : " .. message
         else
-          chat[#chat+1] = client_name[sender] .. " : " .. message
+          chat[#chat+1] = client_names[sender] .. " : " .. message
         end
       end
       if(pheader  == '005') then
         local newid = string.sub(data,1,5)
         local newname = string.sub(data,6)
         print('new client with id ' .. newid .. ' and name ' .. newname)
-        client_name[newid] = newname
-        clients[#clients+1] = newname
-        print('clients online')
-        for i=1,#clients do
-          print(clients[i])
-          end
+        client_names[newid] = newname
       end
       if(pheader == '006') then
        print('server sent some worlddata')
-       print('data')
+       print(data)
        local sep = string.find(data,'|')
        
       end
@@ -57,3 +52,13 @@ function onReceive(data)
         end
       end
     end
+    
+  client = lube.client()
+  client:setHandshake("Hi!")
+  client:setCallback(onReceive)
+  client:connect("84.23.33.186", 3557)
+  print("initialized client")
+  
+  function love.update(dt)
+    client:update(dt)
+  end

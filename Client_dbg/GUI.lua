@@ -5,6 +5,9 @@ local blocks = {}
 local buttons = {}
 local input = ''
 
+loginphrase = 'Enter login '
+passphrase = 'Enter pass '
+
  Block = class('Block')
  Element = class('Element')
  Image = class('Image',Element)
