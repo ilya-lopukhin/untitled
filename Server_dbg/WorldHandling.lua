@@ -57,8 +57,8 @@ function Chunk:Fill(data)
 end
 
 function World:sendChunk(id,ip)
-  print('chunk data sent' .. chunks[id].data) 
-  server:send('006' .. '|' .. id .. '|' .. chunks[id].data,ip)
+  --print('chunk data sent' .. id .. '|' .. chunks[id].data,ip) 
+  --server:send('006' .. id .. '|' .. chunks[id].data,ip)
 end
 
 

@@ -10,6 +10,7 @@ local Server = NetTest:addState('Server')
     client_id = {}
     client_name = {}
     chat = {}
+    chars = {}
     query_t = {}
     query_f = {}
     time = 0
@@ -43,9 +44,11 @@ local Server = NetTest:addState('Server')
        client_name[client_id[ip]] = authlogin
         --send world to new auth
         MainWorld:sendChunk(1,ip)
+        --create a sphere for new auth
+        chars[client_id[ip]] = Character:new(0,0)
         --send all data about existing players to new auth
        for i = 1,#client_id do
-         if client_id[i] ~= nil then
+         if client_id[i] ~= client_id[ip] then
           server:send('005' .. client_id[i] .. client_name[client_id[i]], ip)
          end
        end
@@ -81,20 +84,18 @@ local Server = NetTest:addState('Server')
         query = nil
     end
   
-    if(pheader == '002' and fail == nil) then
-      sep = string.find(data,'|')
-      newlogin = '"' .. string.sub(data,1,sep-1) .. '"'
-      newpass = '"' .. string.sub(data,sep+1) .. '"'
-      conn = env:connect('LUADB', 'root', 'Kolokolq11')
-      query = conn:execute('INSERT INTO Users VALUES(' .. newlogin .. ',' .. newpass ..');')
+    if(pheader == '002') then
+      local sep = string.find(data,'|')
+      local newlogin = '"' .. string.sub(data,1,sep-1) .. '"'
+      local newpass = '"' .. string.sub(data,sep+1) .. '"'
+      local conn = env:connect('LUADB', 'root', 'Kolokolq11')
+      local query = conn:execute('INSERT INTO Users VALUES(' .. newlogin .. ',' .. newpass ..');')
       conn:close()
       server:send('002',ip)
-      query = nil
-      fail = nil
       end
       
     if(pheader == '003') then
-      message = data
+      local message = data
       if client_id[ip] ~= nil then
         print('recieved chat messgage : ' .. message .. ' from ' .. client_id[ip])
       end
@@ -104,17 +105,22 @@ local Server = NetTest:addState('Server')
       else
         print('WARNING client_id[' .. ip .. '] is nil')
       end
-    end 
-
-        
-      message = nil
     end
+    if(pheader == '005') then
+      local sep = string.find(data,'|')
+      chars[client_id[ip]].x = string.sub(data,1,sep-1)
+      chars[client_id[ip]].y = string.sub(data,sep+1)
+      server:send('008' .. client_id[ip] .. '|' .. chars[client_id[ip]].x .. '|' .. chars[client_id[ip]].y)
+    end
+end
 
     
   function onDisconnect(ip, port)
     online = online - 1
     client_name[client_id[ip]] = nil
+    chars[client_id[ip]] = nil
     client_id[ip] = nil
+
     server:send('007' .. client_id[ip])
   end
   

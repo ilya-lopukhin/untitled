@@ -9,6 +9,7 @@ NetTest = class('NetTest'):include(Stateful)
 require("menu")
 require("server")
 require("WorldHandling")
+require("CharacterHandling")
 
 function clearLoveCallbacks()
   love.draw = nil

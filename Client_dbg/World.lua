@@ -1,6 +1,4 @@
---NEED TO REWORK COMPLETELY
 
---[[
 
 --World handling module
 
@@ -12,52 +10,32 @@ grass = love.graphics.newImage('sprites/grass.png')
 World = class('World')
 WorldChunk = class('WorldChunk')
 
-function WorldChunk:initialize(chunksize,x,y)
+function WorldChunk:initialize(chunksize,worlddata,x,y)
   self.size = chunksize
-  self.x = x 
+  self.x = x
   self.y = y
-  self.tiles = {}
+
+  self.data = worlddata
 end
 
+rootchunk = WorldChunk:new(8,'00000000',0,0)
 
-function World:initialize(size, ratio)
-  self.firstchunk = true
-  self.x = 0
-  self.y = 0
+
+function World:initialize(size,ratio)
+  self.chunks = {}
   self.size = size
   self.ratio = ratio
-  self.chunks = {}
-  self.chunksize = self.size/self.ratio
-  self.numchunks = (self.size*self.size)/(self.chunksize*self.chunksize)
-  self.squrtchunks = math.sqrt(self.numchunks)
-  self.chunkheight = self.chunksize*tileheight
-  self.chunkwidth = self.chunksize*tilewidth
---короч, тут все просто, по гайдику, проставляются координаты чанками как будто это тайлы размером self.chunksize*self.chunksize тайлов
-  
-  for i = 1, self.squrtchunks do
-    for j = 1, self.squrtchunks do
-      --print((j-1)*self.chunkheight+(i-1)*self.chunkheight .. ':' .. ((j-1)*self.chunkheight-(i-1)*self.chunkheight)/2)
-      self.chunks[#self.chunks+1] = WorldChunk:new(self.chunksize, (j-1)*self.chunkheight+(i-1)*self.chunkheight , ((j-1)*self.chunkheight-(i-1)*self.chunkheight)/2)
-    end
-  end
+  self.pointer_x = 0
+  self.pointer_y = 0
+  self.chunkwidth = (self.size/self.ratio)*tilewidth
+  self.chunkheight = (self.size/self.ratio)*tileheight
 end
 
---типа какому тайлу какая картинка принадлежит на отрисовку. эту хуиту нужно поменять, сделать отдельный класс Tile скорее всего.
-function World:NewTile(num, tile)
-  tile_decode[num] = tile
-end
 
---типа заполняет чанк говном пришедшим с сервера вроде 10010101001110 где 1 - трава а 0 - говно
-function World:FillChunk(datastring,chunknum)
-  self.chunks[chunknum]:Fill(datastring)
-  print('new chunk N ' .. chunknum .. ' = ' .. datastring)
-end
-
---типа по строке из предыдущей функции заполняет одномерный МАССИВ С ТАЙЛАМИ НАХУЙ ЕПТА. это скоро поменяю нахуй
-function WorldChunk:Fill(datastring)
-  for i = 1, self.size do
-      self.tiles[#self.tiles+1] = string.sub(datastring,i,i)
-  end
+function World:NewChunk(dir, worlddata)
+  self.pointer_x = self.pointer_x + dir[1]*self.chunkwidth/2
+  self.pointer_y = self.pointer_y + dir[2]*self.chunkheight/2
+  self.chunks[#self.chunks+1] = WorldChunk:new(#worlddata,worlddata,self.pointer_x,self.pointer_y)
 end
 
 --вот тут красивенько отрисовывает тайлы внутри собственно чанка
@@ -69,15 +47,20 @@ function WorldChunk:Draw()
   end
 end
 
---тут по дибильной нумерации рисуются все чанки подряд в данном мире(блоке чанков)
+
 function World:Draw()
-  local k = 0
-  for i = 1, self.squrtchunks do
-    for j = 1, self.squrtchunks do
-      k = k+1
-      self.chunks[k]:Draw()
-    end
+  for i = 1, #self.chunks do
+    self.chunks[i]:Draw()
   end
 end
 
-]]--
+MainWorld = World:new(32,4)
+MainWorld.chunks[1] = rootchunk
+MainWorld:NewChunk({-1,1},'00000000')
+MainWorld:NewChunk({-1,-1},'00000000')
+MainWorld:NewChunk({-1,-1},'00000000')
+MainWorld:NewChunk({-1,-1},'00000000')
+MainWorld:NewChunk({-1,-1},'00000000')
+MainWorld:NewChunk({1,1},'00000000')
+--MainWorld:NewChunk({1,-1},'00000000')
+--MainWorld:NewChunk({1,1},'00000000')

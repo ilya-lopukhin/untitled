@@ -4,7 +4,7 @@ require("os")
 require("math")
 require("string")
 utf8 = require("utf8")
-
+vector = require("vector")
 
 require("LUBE")
 require("MiddleClass")
@@ -13,10 +13,13 @@ Lamp = class('Lamp'):include(Stateful)
 require("Menu")
 require("Client")
 require("World")
+require("Character")
+
 require("Game")
 require("GUI")
 
 Camera = require("camera")
+cam = Camera(love.window:getWidth()/2,love.window:getHeight()/2)
 
 Font = love.graphics.getFont()
   
@@ -26,7 +29,10 @@ love.keyboard.setTextInput(false)
 
 chat = {}
 
+chars = {}
+
 client_names = {}
+client_id = {}
 
 id = 0
 client_names[id] = 'noname'

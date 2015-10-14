@@ -34,14 +34,17 @@ function onReceive(data)
       if(pheader  == '005') then
         local newid = string.sub(data,1,5)
         local newname = string.sub(data,6)
-        print('new client with id ' .. newid .. ' and name ' .. newname)
+        client_id[#client_id+1] = newid
         client_names[newid] = newname
+        print('new client with id ' .. client_id[#client_id] .. ' and name ' .. client_names[client_id[#client_id]])
+        chars[newid] = Character:new(0,0,love.graphics.newImage('sprites/sphere1.png'))
       end
       if(pheader == '006') then
        print('server sent some worlddata')
        print(data)
-       local sep = string.find(data,'|')
-       
+       local dir = {tonumber(string.sub(data,1,1)),tonumber(string.sub(data,2,2)}
+       data = string.sub(data,3)
+       MainWorld:NewChunk(dir,stirng)
       end
       if(pheader == '007') then
         --print(data .. " disconnected")
@@ -51,12 +54,22 @@ function onReceive(data)
           end
         end
       end
+      if(pheader == '008') then
+        local sep = string.find(data,'|')
+        local id = string.sub(data,1,sep-1)
+        data = string.sub(data,sep+1)
+        sep = string.find(data, '|')
+        local x = tonumber(string.sub(data,1,sep-1))
+        local y = tonumber(string.sub(data,sep+1))
+        print('new position (' .. x .. ',' .. y .. ') of player ' .. id)
+        chars[id]:MoveTo(x,y)
+      end
     end
     
   client = lube.client()
   client:setHandshake("Hi!")
   client:setCallback(onReceive)
-  client:connect("84.23.33.186", 3557)
+  client:connect("127.0.0.1", 3557)
   print("initialized client")
   
   function love.update(dt)

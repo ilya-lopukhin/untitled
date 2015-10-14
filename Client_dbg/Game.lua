@@ -1,5 +1,6 @@
 
 local Game = Lamp:addState('Game')
+local time = 0
 function Game:enterState()
   
   clearLoveCallbacks()
@@ -9,8 +10,8 @@ function Game:enterState()
   rocks = love.graphics.newImage('sprites/rocks.png')
   brick = love.graphics.newImage('sprites/brick.png')
   selection = love.graphics.newImage('sprites/selection.png')
-  
-  cam = Camera(love.window:getWidth()/2,love.window:getHeight()/2)
+  char = Character:new(0,0,love.graphics.newImage('sprites/sphere.png'))
+
   
 --------------------GUI-------------------
   chatbox = Block:new(0,0,0,love.window.getWidth(0)/8,200)
@@ -24,14 +25,22 @@ function Game:enterState()
        end
        chat[16] = nil
      end
-       worldx , worldy = cam:worldCoords(cam:pos())
-
-   end
+    time = time + 1
+    if time == 1 then
+      for i = 1, #client_id do
+        chars[client_id[i]]:Move(1)
+      end
+      time = 0
+    end
+  end
 ------------------------------------------  
   function love.draw()
     cam:attach()
     
-      --TODO:world:Draw()
+      MainWorld:Draw()
+      for i = 1 , #client_id do
+        chars[client_id[i]]:Draw()
+      end
 
     cam:detach()
     if input_line == 1 then
@@ -45,10 +54,9 @@ function Game:enterState()
 -----------------------------------------
   function love.mousepressed(x, y, button)
     if button == 'r' then
-      drawx , drawy = cam:mousepos()
-      --tileX = round(drawy/64)
-      --tileY = round((drawy/32)*2)
-      --drawborder = 1
+      local mx , my = cam:mousepos()
+      char:MoveTo(mx,my)
+      client:send('005' .. char.moveTrg.x .. '|' .. char.moveTrg.y)
     end
   end
   function love.mousemoved( x, y, dx, dy )
@@ -66,9 +74,6 @@ function Game:enterState()
     if k == 'y' then
       love.keyboard.setTextInput(true)
       input_line = 1
-    end
-    if k == 'a' then
-      client:send('004')
     end
     if k == 'return' and input_line == 1 then
       client:send('003' .. input)
