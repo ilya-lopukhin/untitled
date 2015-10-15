@@ -7,8 +7,7 @@ local Server = NetTest:addState('Server')
     
     clearLoveCallbacks()
     print("initializing server")
-    client_id = {}
-    client_name = {}
+    clients = {}
     chat = {}
     chars = {}
     query_t = {}
@@ -18,9 +17,9 @@ local Server = NetTest:addState('Server')
   
   function onConnect(ip, port)
     print("Connection from " .. ip)
-    online = online + 1;
-    --print(ip .. " recieved id " .. client_id[ip])
-    --server:send('003' .. '10000' .. 'You recieved id ' .. client_id[ip], ip) --packet sending as 'XXX' header ++ 'DATA'
+    clients[ip] = Client:new(math.random(10001,99999),'noname')
+    print(clients[ip].id .. ' id to new client ' .. clients[ip].name)
+    print(#clients .. ' online')
   end
   
   function onReceive(data, ip, port)
@@ -38,26 +37,26 @@ local Server = NetTest:addState('Server')
       row = query:fetch({},'a')
       if row ~= nil then
         print(ip .. ' passed auth ' .. row.Login .. ' == ' .. authlogin .. "|" .. row.Pass .. " == " .. authpass)
-        --choose random id for new auth
-       client_id[ip] = math.random(10001,99999)
         --remember new auth's login
-       client_name[client_id[ip]] = authlogin
+        clients[ip].name = authlogin
         --send world to new auth
         MainWorld:sendChunk(1,ip)
         --create a sphere for new auth
-        chars[client_id[ip]] = Character:new(0,0)
+        clients[ip].char = Character:new(0,0)
         --send all data about existing players to new auth
-       for i = 1,#client_id do
-         if client_id[i] ~= client_id[ip] then
-          server:send('005' .. client_id[i] .. client_name[client_id[i]], ip)
+       for i = 1,#clients do
+         if clients[i] ~= nil then
+         if clients[i].id ~= clients[ip].id then
+          server:send('005' .. clients[i].id .. clients[i].name, ip)
          end
+       end
        end
         --send system message "new username connected"
        server:send('004' .. '10000' .. authlogin .. ' connected')
         --grant access to the server to the new arrival
        server:send('003',ip)
         --send id/name of new arrival to all
-       server:send('005' .. client_id[ip] .. client_name[client_id[ip]])
+       server:send('005' .. clients[ip].id .. clients[ip].name)
       else
         server:send('000',ip)
       end
@@ -96,32 +95,30 @@ local Server = NetTest:addState('Server')
       
     if(pheader == '003') then
       local message = data
-      if client_id[ip] ~= nil then
-        print('recieved chat messgage : ' .. message .. ' from ' .. client_id[ip])
+      if clients[ip].id ~= nil then
+        print('recieved chat messgage : ' .. message .. ' from ' .. clients[ip].id)
       end
       chat[#chat+1] = message
-      if client_id[ip] ~= nil then
-        server:send('004' .. client_id[ip] .. data)
+      if clients[ip].id ~= nil then
+        server:send('004' .. clients[ip].id .. data)
       else
         print('WARNING client_id[' .. ip .. '] is nil')
       end
     end
     if(pheader == '005') then
       local sep = string.find(data,'|')
-      chars[client_id[ip]].x = string.sub(data,1,sep-1)
-      chars[client_id[ip]].y = string.sub(data,sep+1)
-      server:send('008' .. client_id[ip] .. '|' .. chars[client_id[ip]].x .. '|' .. chars[client_id[ip]].y)
+      clients[ip].char.x = string.sub(data,1,sep-1)
+      clients[ip].char.y = string.sub(data,sep+1)
+      server:send('008' .. clients[ip].id .. '|' .. clients[ip].char.x .. '|' .. clients[ip].char.y)
+    end
+    if(pheader == '006') then
+      clients[ip].active = true
     end
 end
 
     
   function onDisconnect(ip, port)
-    online = online - 1
-    client_name[client_id[ip]] = nil
-    chars[client_id[ip]] = nil
-    client_id[ip] = nil
 
-    server:send('007' .. client_id[ip])
   end
   
   server = lube.server(3557)
@@ -132,6 +129,23 @@ end
   function love.update(dt)
     time = time + 1
     server:update(dt)
+    if time == 150 then
+      for i = 1, #clients do
+        if clients[i] then
+        if clients[i].active == false then
+          print(clients[i].id .. ' disconnected')
+          onDisconnect(i)
+          server:send('007' .. clients[i].id)
+          table.remove(clients,i)
+          table.remove(server.clients,i)
+          print(#clients .. ' clients online')
+        else
+          clients[i].active = false
+        end
+        end
+      end
+      time = 0
+    end
   end
   function love.draw()
   end
@@ -140,7 +154,7 @@ end
       netTest:gotoState('Menu')
     end
   end
-  end
+end
 function Server:exitState()
   --TODO: Server EXIT CODE
   print("Exiting server")

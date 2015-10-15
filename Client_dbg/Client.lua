@@ -42,16 +42,16 @@ function onReceive(data)
       if(pheader == '006') then
        print('server sent some worlddata')
        print(data)
-       local dir = {tonumber(string.sub(data,1,1)),tonumber(string.sub(data,2,2)}
+       local dir = {tonumber(string.sub(data,1,1)),tonumber(string.sub(data,2,2))}
        data = string.sub(data,3)
        MainWorld:NewChunk(dir,stirng)
       end
       if(pheader == '007') then
-        --print(data .. " disconnected")
-        for i=1,#clients do
-          if clients[i] == data then
-            clients[i] = ''
-          end
+        print(data .. " disconnected")
+        client_names[data] = nil
+        chars[data] = nil
+        for i=1, #client_id do
+          if client_id[i] == data then client_id[i] = nil break end
         end
       end
       if(pheader == '008') then
@@ -61,7 +61,7 @@ function onReceive(data)
         sep = string.find(data, '|')
         local x = tonumber(string.sub(data,1,sep-1))
         local y = tonumber(string.sub(data,sep+1))
-        print('new position (' .. x .. ',' .. y .. ') of player ' .. id)
+       --print('new position (' .. x .. ',' .. y .. ') of player ' .. id)
         chars[id]:MoveTo(x,y)
       end
     end
@@ -69,7 +69,7 @@ function onReceive(data)
   client = lube.client()
   client:setHandshake("Hi!")
   client:setCallback(onReceive)
-  client:connect("127.0.0.1", 3557)
+  connected = client:connect("127.0.0.1", 3557)
   print("initialized client")
   
   function love.update(dt)

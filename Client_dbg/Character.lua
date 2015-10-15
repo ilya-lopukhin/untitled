@@ -22,9 +22,8 @@ function Character:Move(speed)
   local dist = self.pos:dist(self.moveTrg)
 
   if dist > 2 then
-    print(dist)
-    self.pos.x = self.pos.x + 0.05*(self.moveTrg.x - self.oldpos.x)
-    self.pos.y = self.pos.y + 0.05*(self.moveTrg.y - self.oldpos.y)
+    self.pos.x = self.pos.x + 0.025*(self.moveTrg.x - self.oldpos.x)
+    self.pos.y = self.pos.y + 0.025*(self.moveTrg.y - self.oldpos.y)
   end
 end
 

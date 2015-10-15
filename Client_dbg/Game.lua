@@ -1,6 +1,7 @@
 
 local Game = Lamp:addState('Game')
 local time = 0
+local time1 = 0
 function Game:enterState()
   
   clearLoveCallbacks()
@@ -14,10 +15,17 @@ function Game:enterState()
 
   
 --------------------GUI-------------------
-  chatbox = Block:new(0,0,0,love.window.getWidth(0)/8,200)
+  chatbox = Block:new(0,0,0,love.window.getWidth()/4,200)
+  online = Block:new(love.window.getWidth()-love.window.getWidth()/4,0,0,100,love.window.getWidth()/4)
 ------------------------------------------
    function love.update(dt)
+     time = time + 1
+     time1 = time1 + 1
      client:update(dt)
+     if time1 == 30 then
+      client:send('006')
+      time1 = 0
+     end
      if(#chat > 15) then
        chat[1] = nil
        for i = 1,15 do
@@ -25,7 +33,6 @@ function Game:enterState()
        end
        chat[16] = nil
      end
-    time = time + 1
     if time == 1 then
       for i = 1, #client_id do
         chars[client_id[i]]:Move(1)
@@ -43,6 +50,8 @@ function Game:enterState()
       end
 
     cam:detach()
+    chatbox:Draw()
+    online:Draw()
     if input_line == 1 then
       love.graphics.printf(input,0,8+(#chat+1)*mainfont:getHeight( ),love.graphics.getWidth())
       love.graphics.printf('|',mainfont:getWidth(input)+1,8+(#chat + 1)*mainfont:getHeight( ),love.graphics.getWidth())

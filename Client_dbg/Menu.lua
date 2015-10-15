@@ -2,26 +2,34 @@
 local md5 = require 'md5'
 local io = require('io')
 local Menu = Lamp:addState('Menu')
+local time1 = 0
 
 function Menu:enterState()
   clearLoveCallbacks()
   
-  button1 = Button:new(love.graphics.newImage('sprites/loginbutton.png'),love.graphics.newImage('sprites/loginbuttonpressed.png'),true)
-  button2 = Button:new(love.graphics.newImage('sprites/registerbutton.png'),love.graphics.newImage('sprites/registerbuttonpressed.png'),true)
-  greetLabel = Image:new(love.graphics.newImage('sprites/greetLabel.png'))
-  loginLabel = Image:new(love.graphics.newImage('sprites/loginLabel.png'))
-  loginbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter login here')
-  passLabel = Image:new(love.graphics.newImage('sprites/passLabel.png'))
-  passbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter pass here')
-  testTextLabel = TextLabel:new('test text')
+  local button1 = Button:new(love.graphics.newImage('sprites/loginbutton.png'),love.graphics.newImage('sprites/loginbuttonpressed.png'),true)
+  local button2 = Button:new(love.graphics.newImage('sprites/registerbutton.png'),love.graphics.newImage('sprites/registerbuttonpressed.png'),true)
+  local greetLabel = Image:new(love.graphics.newImage('sprites/greetLabel.png'))
+  local loginLabel = Image:new(love.graphics.newImage('sprites/loginLabel.png'))
+  local loginbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter login here')
+  local passLabel = Image:new(love.graphics.newImage('sprites/passLabel.png'))
+  local passbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter pass here')
+  local testTextLabel = TextLabel:new('test text')
   
-  regLabel = Image:new(love.graphics.newImage('sprites/registerLabel.png'))
-  regloginbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter login here')
-  regpassbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter pass here')
-  regbutton = Button:new(love.graphics.newImage('sprites/doneButton.png'),love.graphics.newImage('sprites/registerbuttonpressed.png'),true)
+  local regLabel = Image:new(love.graphics.newImage('sprites/registerLabel.png'))
+  local regloginbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter login here')
+  local regpassbox = InputBox:new(love.graphics.newImage('sprites/inputBox.png'),'Enter pass here')
+  local regbutton = Button:new(love.graphics.newImage('sprites/doneButton.png'),love.graphics.newImage('sprites/registerbuttonpressed.png'),true)
+  
+  local pressable = {button1,button2,loginbox, passbox}
   
    function love.update(dt)
+     time1 = time1 + 1
          client:update(dt)
+    if time1 == 30 then
+      client:send('006')
+      time1 = 0
+     end
     if curr_input == loginbox then
       curr_input:TakeInput(input)
       login = curr_input:GetInput()
